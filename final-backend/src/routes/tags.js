@@ -321,7 +321,7 @@ router.post('/bulk', authenticateToken, uploadDoc.single('file'), async (req, re
             // Generate ALL requested designs
             const qrs = {};
             for (const dt of designsToGenerate) {
-              qrs[dt] = await generateQRCode(tagCode, dt);
+              qrs[dt] = await generateQRCode(tagCode, dt, null, assetType);
             }
 
             const primaryDesignType = designsToGenerate[0];
@@ -436,7 +436,7 @@ router.post('/bulk-download', authenticateToken, async (req, res) => {
         if (qty <= 0) continue;
 
         // Ensure QR is generated for this specific design
-        const qr = await generateQRCode(tag.tagCode, designType, tagWithSponsor.sponsor, tag.assetType);
+        const qr = await generateQRCode(tag.tagCode, designType, tagWithSponsor.sponsor, tagWithSponsor.assetType);
         const fullPath = path.join(__dirname, '..', '..', qr.qrImageUrl);
 
         if (fs.existsSync(fullPath)) {
@@ -463,7 +463,7 @@ router.post('/bulk-pdf', authenticateToken, async (req, res) => {
     const qtyConfig = quantities || { standard: 1 };
     const tags = await prisma.tag.findMany({
       where: { id: { in: ids } },
-      select: { tagCode: true, designType: true }
+      select: { tagCode: true, designType: true, assetType: true }
     });
 
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
@@ -483,11 +483,19 @@ router.post('/bulk-pdf', authenticateToken, async (req, res) => {
           for (let i = 0; i < qty; i++) {
             doc.addPage();
             const isCircle = designType === 'circle';
-            const imgWidth = 400;
-            const imgHeight = isCircle ? 400 : 550;
+            const isLandscape = designType === 'landscape';
+            
+            let imgWidth, imgHeight;
+            if (isCircle) {
+              imgWidth = 400; imgHeight = 400;
+            } else if (isLandscape) {
+              imgWidth = 500; imgHeight = 315; // Credit card aspect in PDF
+            } else {
+              imgWidth = 400; imgHeight = 550;
+            }
             
             doc.image(fullPath, (doc.page.width - imgWidth) / 2, 50, { width: imgWidth });
-            doc.fontSize(12).text(`ID: ${tag.tagCode} | Copy ${i + 1} of ${qty}`, 0, 650, { align: 'center' });
+            doc.fontSize(12).text(`ID: ${tag.tagCode} | Design: ${designType.toUpperCase()} | Copy ${i + 1}`, 0, isLandscape ? 400 : 650, { align: 'center' });
           }
         }
       }

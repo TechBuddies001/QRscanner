@@ -92,7 +92,7 @@ router.post('/tag/:tagCode/scan', async (req, res) => {
   }
 });
 
-// POST /api/public/tag/:tagCode/call – Initiate masked call via Exotel
+// POST /api/public/tag/:tagCode/call – Register intent to call (Single-Leg Flow)
 router.post('/tag/:tagCode/call', async (req, res) => {
   try {
     const { tagCode } = req.params;
@@ -104,46 +104,97 @@ router.post('/tag/:tagCode/call', async (req, res) => {
     const tag = await prisma.tag.findUnique({ where: { tagCode } });
     if (!tag || !tag.isActive) return res.status(404).json({ error: 'Tag not found or inactive' });
 
-    const { initiateExotelCall } = require('../services/exotel');
-
-    let callSid = null;
-    let callStatus = 'initiated';
-    let errorMsg = null;
-
-    try {
-      const result = await initiateExotelCall({
-        ownerPhone: tag.ownerPhone,
-        scannerPhone,
-        tagCode,
-      });
-      callSid = result?.Call?.Sid || null;
-    } catch (callErr) {
-      console.error('Exotel call failed:', callErr.message);
-      callStatus = 'failed';
-      errorMsg = callErr.message;
-    }
-
-    // Log the call
+    // 1. Create a CallLog entry as 'pending'
+    // This allows the connect webhook to lookup the owner number based on the scanner's phone
     await prisma.callLog.create({
       data: {
         tagId: tag.id,
         scannerPhone,
-        callSid,
-        status: callStatus,
+        status: 'pending',
         provider: 'exotel',
       },
     });
 
-    if (callStatus === 'failed') {
-      return res.status(502).json({
-        error: 'Call initiation failed. Please try again.',
-        details: process.env.NODE_ENV === 'development' ? errorMsg : undefined,
+    // 2. Return the Exophone number for the frontend to dial
+    res.json({ 
+      success: true, 
+      exophone: process.env.EXOTEL_CALLER_ID, 
+      message: 'Intent registered. Please click the call button to connect.' 
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * EXOTEL WEBHOOKS
+ * As per Exotel 'Connect Applet' (Single-Leg Call Flow)
+ */
+
+// GET /api/public/exotel/webhook/connect – Exotel hits this when call is received on Exophone
+router.get('/exotel/webhook/connect', async (req, res) => {
+  try {
+    const { CallFrom, CallSid, From } = req.query;
+    const scannerPhone = From || CallFrom;
+
+    if (!scannerPhone) return res.send('destination_number=0'); // Fail call
+
+    // Lookup the most recent pending call request from this scanner phone
+    const pendingCall = await prisma.callLog.findFirst({
+      where: { 
+        scannerPhone,
+        status: 'pending',
+        createdAt: { gte: new Date(Date.now() - 10 * 60 * 1000) } // Last 10 mins
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { tag: true }
+    });
+
+    if (!pendingCall || !pendingCall.tag) {
+      console.log(`[Exotel Webhook] No pending call found for ${scannerPhone}`);
+      return res.send('destination_number=0');
+    }
+
+    // Update status to 'bridging'
+    await prisma.callLog.update({
+      where: { id: pendingCall.id },
+      data: { status: 'bridging', callSid: CallSid }
+    });
+
+    // Response for Exotel Connect Applet
+    // Format: destination_number=XXXXX&conversation_duration=300
+    res.send(`destination_number=${pendingCall.tag.ownerPhone}&conversation_duration=600`);
+    
+  } catch (err) {
+    console.error('[Exotel Webhook Error]:', err.message);
+    res.send('destination_number=0');
+  }
+});
+
+// POST /api/public/exotel/webhook/status – Passthru Callback for Call Completion & Recordings
+router.post('/exotel/webhook/status', async (req, res) => {
+  try {
+    const data = req.body; // Exotel sends POST data for Passthru
+    const { CallSid, Status, RecordingUrl, ConversationDuration } = data;
+
+    if (!CallSid) return res.sendStatus(200);
+
+    const callLog = await prisma.callLog.findFirst({ where: { callSid: CallSid } });
+    if (callLog) {
+      await prisma.callLog.update({
+        where: { id: callLog.id },
+        data: {
+          status: Status === 'completed' ? 'connected' : (Status === 'no-answer' ? 'missed' : 'failed'),
+          duration: ConversationDuration ? parseInt(ConversationDuration) : 0,
+          recordingUrl: RecordingUrl || null,
+        }
       });
     }
 
-    res.json({ success: true, callSid, message: 'Call initiated. You will receive a call shortly.' });
+    res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('[Exotel Passthru Error]:', err.message);
+    res.sendStatus(200); // Always ack Exotel
   }
 });
 
