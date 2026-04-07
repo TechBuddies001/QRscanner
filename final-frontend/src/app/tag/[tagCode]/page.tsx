@@ -110,7 +110,12 @@ export default function PublicTagPage() {
       
       if (response.data.success) {
         setExophone(response.data.exophone);
-        toast.success("Ready to connect!", { id: toastId });
+        toast.success("Connecting you securely...", { id: toastId });
+        
+        // Auto-trigger the call dialer immediately
+        if (response.data.exophone) {
+          window.location.href = `tel:${response.data.exophone}`;
+        }
       }
     } catch (error: any) {
       const errorMsg = error.response?.data?.error || error.message || "Failed to register call";
