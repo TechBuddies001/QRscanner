@@ -1,8 +1,19 @@
 const QRCode = require('qrcode');
 const path = require('path');
-const { createCanvas, loadImage } = require('canvas');
+const { createCanvas, loadImage, registerFont } = require('canvas');
 const fs = require('fs');
 const { qrDir } = require('../middleware/upload');
+
+// Register Custom Font for Linux/Railway environment
+try {
+  const fontPath = path.join(__dirname, '..', 'assets', 'fonts', 'Arial.ttf');
+  if (fs.existsSync(fontPath)) {
+    registerFont(fontPath, { family: 'CustomArial' });
+    console.log('Successfully registered custom Arial font');
+  }
+} catch (e) {
+  console.error('Font registration failed:', e.message);
+}
 
 /**
  * Generate branded QR code with different designs
@@ -73,16 +84,16 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
       ctx.drawImage(logoImage, (canvasWidth - logoWidth) / 2, 50, logoWidth, logoHeight);
     }
 
-    ctx.font = 'bold 100px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 100px "CustomArial"';
     ctx.textAlign = 'center';
     ctx.fillText('V-KAWACH', canvasWidth / 2, 420);
 
-    ctx.font = 'bold 36px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 36px "CustomArial"';
     ctx.letterSpacing = "8px";
     ctx.globalAlpha = 0.8;
     ctx.fillText('SECURING YOUR WORLD', canvasWidth / 2, 490);
 
-    ctx.font = 'bold 58px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 58px "CustomArial"';
     ctx.letterSpacing = "10px";
     ctx.globalAlpha = 1.0;
     const safetyLabelStd = assetType === 'pet' ? 'PET SAFETY' : 
@@ -94,7 +105,7 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
     ctx.letterSpacing = "0px";
 
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 36px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 36px "CustomArial"';
     ctx.letterSpacing = "12px";
     ctx.fillText(`${assetType.toUpperCase()} ID: ${tagCode}`, canvasWidth / 2, 730);
     ctx.letterSpacing = "0px";
@@ -126,14 +137,14 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
     }
 
     ctx.fillStyle = '#002e8a';
-    ctx.font = 'bold 24px "Arial", sans-serif';
+    ctx.font = 'bold 24px "CustomArial"';
     ctx.fillText('A PRODUCT OF TARKSHYA SOLUTION', canvasWidth / 2, 1440);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 85px "Arial", sans-serif';
+    ctx.font = 'bold 85px "CustomArial"';
     ctx.fillText('SCAN IN EMERGENCY', canvasWidth / 2, 1615);
 
-    ctx.font = 'bold 42px "Arial", sans-serif';
+    ctx.font = 'bold 42px "CustomArial"';
     ctx.fillText('FOR IMMEDIATE HELP & ALERTS', canvasWidth / 2, 1705);
   };
 
@@ -239,15 +250,15 @@ async function generateCircleQRCode(tagCode, publicUrl, filePath, fileName, spon
 
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
-    ctx.font = 'bold 90px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 90px "CustomArial"';
     ctx.fillText('V-KAWACH', centerX, 360);
 
-    ctx.font = 'bold 28px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 28px "CustomArial"';
     ctx.letterSpacing = "6px";
     ctx.globalAlpha = 0.8;
     ctx.fillText('SECURING YOUR WORLD', centerX, 410);
 
-    ctx.font = 'bold 38px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 38px "CustomArial"';
     ctx.letterSpacing = "8px";
     ctx.globalAlpha = 1.0;
     const safetyLabel = assetType === 'pet' ? 'PET SAFETY' : 
@@ -259,7 +270,7 @@ async function generateCircleQRCode(tagCode, publicUrl, filePath, fileName, spon
     ctx.letterSpacing = "0px";
 
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 22px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 22px "CustomArial"';
     ctx.letterSpacing = "10px";
     ctx.fillText(`${assetType.toUpperCase()} ID: ${tagCode}`, centerX, 525);
     ctx.letterSpacing = "0px";
@@ -281,21 +292,21 @@ async function generateCircleQRCode(tagCode, publicUrl, filePath, fileName, spon
       const sLogoAspect = sLogoImage.height / sLogoImage.width;
       const sLogoHeight = sLogoWidth * sLogoAspect;
       ctx.fillStyle = '#94a3b8';
-      ctx.font = 'bold 20px "Arial", sans-serif';
+      ctx.font = 'bold 20px "CustomArial"';
       ctx.fillText('POWERED BY', centerX, 830);
       ctx.drawImage(sLogoImage, centerX - sLogoWidth / 2, 840, sLogoWidth, sLogoHeight);
     }
 
     ctx.fillStyle = '#002e8a';
-    ctx.font = 'bold 22px "Arial", sans-serif';
+    ctx.font = 'bold 22px "CustomArial"';
     ctx.fillText('A PRODUCT OF TARKSHYA SOLUTION', centerX, sponsor ? 895 : 885);
 
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
-    ctx.font = 'bold 60px "Arial", sans-serif';
+    ctx.font = 'bold 60px "CustomArial"';
     ctx.fillText('SCAN IN EMERGENCY', centerX, 1030);
 
-    ctx.font = 'bold 30px "Arial", sans-serif';
+    ctx.font = 'bold 30px "CustomArial"';
     ctx.fillText('FOR IMMEDIATE HELP & ALERTS', centerX, 1085);
   };
 
@@ -369,15 +380,15 @@ const generateLandscapeQRCode = async (tagCode, publicUrl, filePath, fileName, s
 
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
-    ctx.font = 'bold 70px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 70px "CustomArial"';
     ctx.fillText('V-KAWACH', blueWidth / 2, 280);
 
-    ctx.font = 'bold 24px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 24px "CustomArial"';
     ctx.letterSpacing = "6px";
     ctx.globalAlpha = 0.8;
     ctx.fillText('SECURING YOUR WORLD', blueWidth / 2, 335);
 
-    ctx.font = 'bold 36px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 36px "CustomArial"';
     ctx.letterSpacing = "8px";
     ctx.globalAlpha = 1.0;
     const safetyLabel = assetType === 'pet' ? 'PET SAFETY' : 
@@ -395,7 +406,7 @@ const generateLandscapeQRCode = async (tagCode, publicUrl, filePath, fileName, s
     const rightAreaWidth = canvasWidth - blueWidth;
     
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 24px "DejaVu Sans", "Liberation Sans", sans-serif';
+    ctx.font = 'bold 24px "CustomArial"';
     ctx.letterSpacing = "8px";
     ctx.fillText(`${assetType.toUpperCase()} ID: ${tagCode}`, rightAreaX + rightAreaWidth/2, 60);
 
@@ -415,14 +426,14 @@ const generateLandscapeQRCode = async (tagCode, publicUrl, filePath, fileName, s
     ctx.drawImage(qrImage, qrBoxX + (qrBoxSize - qrSize)/2, qrBoxY + (qrBoxSize - qrSize)/2, qrSize, qrSize);
 
     ctx.fillStyle = '#002e8a';
-    ctx.font = 'bold 22px "Arial", sans-serif';
+    ctx.font = 'bold 22px "CustomArial"';
     ctx.fillText('A PRODUCT OF TARKSHYA SOLUTION', rightAreaX + rightAreaWidth/2, 475);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 50px "Arial", sans-serif';
+    ctx.font = 'bold 50px "CustomArial"';
     ctx.fillText('SCAN IN EMERGENCY', canvasWidth / 2, canvasHeight - 52);
     
-    ctx.font = 'bold 24px "Arial", sans-serif';
+    ctx.font = 'bold 24px "CustomArial"';
     ctx.fillText('FOR IMMEDIATE HELP & ALERTS', canvasWidth / 2, canvasHeight - 12);
     ctx.letterSpacing = "0px";
   };
