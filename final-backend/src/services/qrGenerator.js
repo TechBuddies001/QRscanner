@@ -73,17 +73,16 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
       ctx.drawImage(logoImage, (canvasWidth - logoWidth) / 2, 50, logoWidth, logoHeight);
     }
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 100px "Arial", sans-serif';
+    ctx.font = 'bold 100px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('V-KAWACH', canvasWidth / 2, 420);
 
-    ctx.font = 'bold 36px "Arial", sans-serif';
+    ctx.font = 'bold 36px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "8px";
     ctx.globalAlpha = 0.8;
     ctx.fillText('SECURING YOUR WORLD', canvasWidth / 2, 490);
 
-    ctx.font = 'bold 58px "Arial", sans-serif';
+    ctx.font = 'bold 58px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "10px";
     ctx.globalAlpha = 1.0;
     const safetyLabelStd = assetType === 'pet' ? 'PET SAFETY' : 
@@ -95,7 +94,7 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
     ctx.letterSpacing = "0px";
 
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 36px "Arial", sans-serif';
+    ctx.font = 'bold 36px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "12px";
     ctx.fillText(`${assetType.toUpperCase()} ID: ${tagCode}`, canvasWidth / 2, 730);
     ctx.letterSpacing = "0px";
@@ -240,15 +239,15 @@ async function generateCircleQRCode(tagCode, publicUrl, filePath, fileName, spon
 
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
-    ctx.font = 'bold 90px "Arial", sans-serif';
+    ctx.font = 'bold 90px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.fillText('V-KAWACH', centerX, 360);
 
-    ctx.font = 'bold 28px "Arial", sans-serif';
+    ctx.font = 'bold 28px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "6px";
     ctx.globalAlpha = 0.8;
     ctx.fillText('SECURING YOUR WORLD', centerX, 410);
 
-    ctx.font = 'bold 38px "Arial", sans-serif';
+    ctx.font = 'bold 38px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "8px";
     ctx.globalAlpha = 1.0;
     const safetyLabel = assetType === 'pet' ? 'PET SAFETY' : 
@@ -260,7 +259,7 @@ async function generateCircleQRCode(tagCode, publicUrl, filePath, fileName, spon
     ctx.letterSpacing = "0px";
 
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 22px "Arial", sans-serif';
+    ctx.font = 'bold 22px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "10px";
     ctx.fillText(`${assetType.toUpperCase()} ID: ${tagCode}`, centerX, 525);
     ctx.letterSpacing = "0px";
@@ -370,15 +369,15 @@ const generateLandscapeQRCode = async (tagCode, publicUrl, filePath, fileName, s
 
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
-    ctx.font = 'bold 70px "Arial", sans-serif';
+    ctx.font = 'bold 70px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.fillText('V-KAWACH', blueWidth / 2, 280);
 
-    ctx.font = 'bold 24px "Arial", sans-serif';
+    ctx.font = 'bold 24px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "6px";
     ctx.globalAlpha = 0.8;
     ctx.fillText('SECURING YOUR WORLD', blueWidth / 2, 335);
 
-    ctx.font = 'bold 36px "Arial", sans-serif';
+    ctx.font = 'bold 36px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "8px";
     ctx.globalAlpha = 1.0;
     const safetyLabel = assetType === 'pet' ? 'PET SAFETY' : 
@@ -396,7 +395,7 @@ const generateLandscapeQRCode = async (tagCode, publicUrl, filePath, fileName, s
     const rightAreaWidth = canvasWidth - blueWidth;
     
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 24px "Arial", sans-serif';
+    ctx.font = 'bold 24px "DejaVu Sans", "Liberation Sans", sans-serif';
     ctx.letterSpacing = "8px";
     ctx.fillText(`${assetType.toUpperCase()} ID: ${tagCode}`, rightAreaX + rightAreaWidth/2, 60);
 
