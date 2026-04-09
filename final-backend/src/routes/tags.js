@@ -425,10 +425,13 @@ router.post('/bulk-download', authenticateToken, async (req, res) => {
       ? designTypes 
       : Object.keys(qtyConfig);
 
-    const tags = await prisma.tag.findMany({
+    const tagsRaw = await prisma.tag.findMany({
       where: { id: { in: ids } },
-      select: { tagCode: true, qrImagePath: true, designType: true }
+      select: { id: true, tagCode: true, qrImagePath: true, designType: true }
     });
+
+    // Sort tags to match the order of IDs provided (preserves upload sequence)
+    const tags = ids.map(id => tagsRaw.find(t => t.id === id)).filter(Boolean);
 
     if (tags.length === 0) return res.status(404).json({ error: 'No tags found' });
 
@@ -436,9 +439,11 @@ router.post('/bulk-download', authenticateToken, async (req, res) => {
     res.attachment(`BULK_V_KAWACH_BATCH_${new Date().getTime()}_${isSvg ? 'SVG' : 'PNG'}.zip`);
     archive.pipe(res);
 
+    let sequence = 1;
     for (const tag of tags) {
       // Resolve sponsor for this specific tag
       const tagWithSponsor = await prisma.tag.findUnique({ where: { tagCode: tag.tagCode }, include: { sponsor: true } });
+      const paddedSeq = sequence.toString().padStart(3, '0');
 
       for (const designType of designsToProcess) {
         const qty = parseInt(qtyConfig[designType]) || 0;
@@ -452,11 +457,12 @@ router.post('/bulk-download', authenticateToken, async (req, res) => {
         if (fs.existsSync(fullPath)) {
           for (let i = 0; i < qty; i++) {
             archive.file(fullPath, { 
-              name: `${tag.tagCode}/${designType.toUpperCase()}_COPY_${i + 1}.${ext}` 
+              name: `${paddedSeq}_${tag.tagCode}/${designType.toUpperCase()}_COPY_${i + 1}.${ext}` 
             });
           }
         }
       }
+      sequence++;
     }
     archive.finalize();
   } catch (err) {
