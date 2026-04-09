@@ -36,7 +36,7 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
   const canvasHeight = 1004;
   const logoTop = 155; 
   
-  const qrSize = 260; // Proportional for 630 width
+  const qrSize = 220; // Reduced to fit better
   const qrBuffer = await QRCode.toBuffer(publicUrl, { errorCorrectionLevel: 'H', margin: 1, width: qrSize });
   const qrImage = await loadImage(qrBuffer);
 
@@ -59,7 +59,7 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // 2. Blue Header (Top Area - Extended for better text visibility)
+    // 2. Blue Header (Top Area)
     const blueHeight = 480;
     const bgGradient = ctx.createLinearGradient(0, 0, 0, blueHeight);
     bgGradient.addColorStop(0, '#002e8a');
@@ -82,10 +82,8 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
       const logoHeight = logoWidth * logoAspect;
       ctx.drawImage(logoImage, (canvasWidth - logoWidth) / 2, logoTop, logoWidth, logoHeight);
       
-      // Calculate next text positions relative to logo
       const textStartY = logoTop + logoHeight + 20;
 
-      // 5. Header Texts (Scaled for 630px)
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 48px "CustomArial"';
       ctx.textAlign = 'center';
@@ -108,17 +106,17 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
     ctx.globalAlpha = 1.0;
     ctx.letterSpacing = "0px";
 
-    // 6. ID Text (White Section)
+    // 5. ID Text (White Section)
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 18px "CustomArial"';
     ctx.letterSpacing = "5px";
-    ctx.fillText(`${assetType.toUpperCase()} ID: ${tagCode}`, canvasWidth / 2, blueHeight + 50);
+    ctx.fillText(`${assetType.toUpperCase()} ID: ${tagCode}`, canvasWidth / 2, blueHeight + 40);
     ctx.letterSpacing = "0px";
 
-    // 7. QR Box & Image (Scaled down)
-    const boxSize = 320;
+    // 6. QR Box & Image
+    const boxSize = 280; // Reduced to prevent overlap
     const boxX = (canvasWidth - boxSize) / 2;
-    const boxY = blueHeight + 90;
+    const boxY = blueHeight + 70;
     
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
@@ -131,7 +129,7 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
 
     ctx.drawImage(qrImage, (canvasWidth - qrSize) / 2, boxY + (boxSize - qrSize) / 2, qrSize, qrSize);
 
-    // 8. Red Footer Section (Proportional - ~140px height)
+    // 7. Red Footer Section
     const redHeight = 145;
     const redY = canvasHeight - redHeight;
     const redGradient = ctx.createLinearGradient(0, redY, 0, canvasHeight);
@@ -147,19 +145,19 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
     ctx.font = 'bold 20px "CustomArial"';
     ctx.fillText('FOR IMMEDIATE HELP & ALERTS', canvasWidth / 2, redY + 105);
 
-    // 9. Sponsored Text (if any)
+    // 8. Sponsored Text
     if (sLogoImage) {
       const sLogoWidth = 60;
       const sLogoAspect = sLogoImage.height / sLogoImage.width;
       const sLogoHeight = sLogoWidth * sLogoAspect;
       ctx.fillStyle = '#94a3b8';
       ctx.font = 'bold 10px "CustomArial"';
-      ctx.fillText('SPONSORED BY', canvasWidth / 2, boxY + boxSize + 25);
-      ctx.drawImage(sLogoImage, (canvasWidth - sLogoWidth) / 2, boxY + boxSize + 32, sLogoWidth, sLogoHeight);
+      ctx.fillText('SPONSORED BY', canvasWidth / 2, boxY + boxSize + 20);
+      ctx.drawImage(sLogoImage, (canvasWidth - sLogoWidth) / 2, boxY + boxSize + 27, sLogoWidth, sLogoHeight);
     } else {
       ctx.fillStyle = '#002e8a';
       ctx.font = 'bold 12px "CustomArial"';
-      ctx.fillText('A PRODUCT OF TARKSHYA SOLUTION', canvasWidth / 2, redY - 20);
+      ctx.fillText('A PRODUCT OF TARKSHYA SOLUTION', canvasWidth / 2, redY - 15);
     }
   };
 
