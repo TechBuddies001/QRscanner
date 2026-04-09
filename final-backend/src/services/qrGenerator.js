@@ -55,6 +55,10 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
   }
 
   const renderCtx = (ctx) => {
+    // Fill background with white initially (especially for top margin)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
     const bgDepth = 650;
     const bgGradient = ctx.createLinearGradient(0, topMargin, 0, topMargin + bgDepth);
     bgGradient.addColorStop(0, '#002e8a');
