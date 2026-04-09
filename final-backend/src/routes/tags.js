@@ -375,9 +375,14 @@ const PDFDocument = require('pdfkit');
 // POST /api/tags/:id/batch-zip – download multiple designs/quantities as ZIP
 router.post('/:id/batch-zip', authenticateToken, async (req, res) => {
   try {
-    const { quantities } = req.body; // { standard: 5, circle: 10 }
+    const { quantities, designTypes } = req.body; // { standard: 5, circle: 10 }
     const tag = await prisma.tag.findUnique({ where: { id: req.params.id } });
     if (!tag) return res.status(404).json({ error: 'Tag not found' });
+
+    const qtyConfig = quantities || { standard: 1 };
+    const designsToProcess = Array.isArray(designTypes) && designTypes.length > 0 
+      ? designTypes 
+      : Object.keys(qtyConfig);
 
     const archive = archiver('zip', { zlib: { level: 9 } });
     res.attachment(`V_KAWACH_${tag.tagCode}_BATCH.zip`);
@@ -386,7 +391,7 @@ router.post('/:id/batch-zip', authenticateToken, async (req, res) => {
     // Fetch sponsor
     const fullTag = await prisma.tag.findUnique({ where: { id: tag.id }, include: { sponsor: true } });
 
-    for (const designType of Object.keys(quantities)) {
+    for (const designType of designsToProcess) {
       const qty = parseInt(quantities[designType]) || 0;
       if (qty <= 0) continue;
 
@@ -410,12 +415,15 @@ router.post('/:id/batch-zip', authenticateToken, async (req, res) => {
 // POST /api/tags/bulk-download – download multiple QR codes as ZIP with quantities
 router.post('/bulk-download', authenticateToken, async (req, res) => {
   try {
-    const { ids, quantities, format } = req.body; 
+    const { ids, quantities, format, designTypes } = req.body; 
     const isSvg = format === 'svg';
     if (!ids || !Array.isArray(ids)) return res.status(400).json({ error: 'Array of tag IDs required' });
 
-    // Use quantities if provided, otherwise default to 1 copy of primary design
+    // Use quantities and filter by designTypes if provided
     const qtyConfig = quantities || { standard: 1 };
+    const designsToProcess = Array.isArray(designTypes) && designTypes.length > 0 
+      ? designTypes 
+      : Object.keys(qtyConfig);
 
     const tags = await prisma.tag.findMany({
       where: { id: { in: ids } },
@@ -432,7 +440,7 @@ router.post('/bulk-download', authenticateToken, async (req, res) => {
       // Resolve sponsor for this specific tag
       const tagWithSponsor = await prisma.tag.findUnique({ where: { tagCode: tag.tagCode }, include: { sponsor: true } });
 
-      for (const designType of Object.keys(qtyConfig)) {
+      for (const designType of designsToProcess) {
         const qty = parseInt(qtyConfig[designType]) || 0;
         if (qty <= 0) continue;
 
@@ -459,10 +467,13 @@ router.post('/bulk-download', authenticateToken, async (req, res) => {
 // POST /api/tags/bulk-pdf – download bulk tags as PDF with quantities
 router.post('/bulk-pdf', authenticateToken, async (req, res) => {
   try {
-    const { ids, quantities } = req.body;
+    const { ids, quantities, designTypes } = req.body;
     if (!ids || !Array.isArray(ids)) return res.status(400).json({ error: 'Array of tag IDs required' });
 
     const qtyConfig = quantities || { standard: 1 };
+    const designsToProcess = Array.isArray(designTypes) && designTypes.length > 0 
+      ? designTypes 
+      : Object.keys(qtyConfig);
     const tags = await prisma.tag.findMany({
       where: { id: { in: ids } },
       select: { tagCode: true, designType: true, assetType: true }
@@ -474,7 +485,7 @@ router.post('/bulk-pdf', authenticateToken, async (req, res) => {
     doc.pipe(res);
 
     for (const tag of tags) {
-      for (const designType of Object.keys(qtyConfig)) {
+      for (const designType of designsToProcess) {
         const qty = parseInt(qtyConfig[designType]) || 0;
         if (qty <= 0) continue;
 

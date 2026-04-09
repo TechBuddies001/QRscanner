@@ -189,7 +189,8 @@ export default function Page() {
     const toastId = toast.loading("Preparing your Batch ZIP...");
     try {
       const response = await api.post(`/tags/${qrResult.tag.id}/batch-zip`, {
-        quantities: formData.quantities
+        quantities: formData.quantities,
+        designTypes: formData.designTypes
       }, {
         responseType: 'blob'
       });
@@ -303,6 +304,7 @@ export default function Page() {
       const response = await api.post("tags/bulk-download", {
         ids: bulkResult.tagIds,
         quantities: formData.quantities, // Respect selection for bulk too
+        designTypes: formData.designTypes,
         format
       }, {
         responseType: 'blob'
@@ -331,7 +333,8 @@ export default function Page() {
     try {
       const response = await api.post("tags/bulk-pdf", {
         ids: bulkResult.tagIds,
-        quantities: formData.quantities // Respect selection for bulk too
+        quantities: formData.quantities, // Respect selection for bulk too
+        designTypes: formData.designTypes
       }, {
         responseType: 'blob'
       });
