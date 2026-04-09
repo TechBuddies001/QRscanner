@@ -80,7 +80,7 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
     redGradient.addColorStop(0, '#b31919');
     redGradient.addColorStop(1, '#7a0a0a');
     ctx.fillStyle = redGradient;
-    ctx.fillRect(0, topMargin + 1480, canvasWidth, 320);
+    ctx.fillRect(0, topMargin + 1480, canvasWidth, 295);
 
     if (logoImage) {
       const logoWidth = 240;
@@ -148,10 +148,10 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 85px "CustomArial"';
-    ctx.fillText('SCAN IN EMERGENCY', canvasWidth / 2, topMargin + 1615);
+    ctx.fillText('SCAN IN EMERGENCY', canvasWidth / 2, topMargin + 1603);
 
     ctx.font = 'bold 42px "CustomArial"';
-    ctx.fillText('FOR IMMEDIATE HELP & ALERTS', canvasWidth / 2, topMargin + 1705);
+    ctx.fillText('FOR IMMEDIATE HELP & ALERTS', canvasWidth / 2, topMargin + 1693);
   };
 
   // PNG Generate
