@@ -5,7 +5,8 @@ import api from "@/lib/api";
 import { 
   Plus, Edit2, Trash2, Check, X, Loader2, 
   Building2, Globe, FileText, Image as ImageIcon,
-  ExternalLink, Info, CheckCircle2, XCircle
+  ExternalLink, Info, CheckCircle2, XCircle,
+  PenTool, Copy
 } from "lucide-react";
 import toast from "react-hot-toast";
 
