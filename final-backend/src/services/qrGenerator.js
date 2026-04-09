@@ -84,6 +84,7 @@ const generateQRCode = async (tagCode, designType = 'standard', sponsor = null, 
       ctx.drawImage(logoImage, (canvasWidth - logoWidth) / 2, 50, logoWidth, logoHeight);
     }
 
+    ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 100px "CustomArial"';
     ctx.textAlign = 'center';
     ctx.fillText('V-KAWACH', canvasWidth / 2, 420);
